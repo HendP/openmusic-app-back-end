@@ -5,12 +5,12 @@ const albums = require('./api/albums');
 const songs = require('./api/songs');
 const AlbumsValidator = require('./validator/albums');
 const SongsValidator = require('./validator/songs');
-const AlbumService = require('./services/openmusic/AlbumsService');
+const AlbumsService = require('./services/openmusic/AlbumsService');
 const SongsService = require('./services/openmusic/SongsService');
 const ClientError = require('./exceptions/ClientError');
 
 const init = async () => {
-  const albumsService = new AlbumService();
+  const albumsService = new AlbumsService();
   const songsService = new SongsService();
 
   const server = Hapi.server({
