@@ -12,6 +12,10 @@
     },
     "rules": {
         "no-console": "off",
-        "camelcase": "off"
+        "camelcase": "off",
+        "no-underscore-dangle": "off",
+        "object-curly-newline": "off",
+        "comma-dangle": "off",
+        "import/no-import-module-exports": "off"
     }
 }
