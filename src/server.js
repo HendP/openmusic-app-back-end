@@ -70,7 +70,7 @@ const init = async () => {
     }
 
     // jika bukan error, lanjutkan dengan response sebelumnya (tanpa terintervensi)
-    return response.continue || response;
+    return h.continue;
   });
 
   await server.start();
