@@ -1,12 +1,15 @@
 require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
+
 const albums = require('./api/albums');
-const songs = require('./api/songs');
-const AlbumsValidator = require('./validator/albums');
-const SongsValidator = require('./validator/songs');
+const albumsValidator = require('./validator/albums');
 const AlbumsService = require('./services/openmusic/AlbumsService');
+
+const songs = require('./api/songs');
+const songsValidator = require('./validator/songs');
 const SongsService = require('./services/openmusic/SongsService');
+
 const ClientError = require('./exceptions/ClientError');
 
 const init = async () => {
@@ -27,15 +30,16 @@ const init = async () => {
     {
       plugin: albums,
       options: {
-        service: albumsService,
-        validator: AlbumsValidator,
+        AlbumsService: albumsService,
+        SongsService: songsService,
+        AlbumsValidator: albumsValidator,
       },
     },
     {
       plugin: songs,
       options: {
-        service: songsService,
-        validator: SongsValidator,
+        SongsService: songsService,
+        SongsValidator: songsValidator,
       },
     },
   ]);
