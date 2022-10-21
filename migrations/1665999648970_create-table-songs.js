@@ -5,7 +5,7 @@ exports.up = (pgm) => {
       primaryKey: true,
     },
     title: {
-      type: 'TEXT',
+      type: 'VARCHAR(50)',
       notNull: true,
     },
     year: {
@@ -13,11 +13,11 @@ exports.up = (pgm) => {
       notNull: true,
     },
     genre: {
-      type: 'TEXT',
+      type: 'VARCHAR(50)',
       notNull: true,
     },
     performer: {
-      type: 'TEXT',
+      type: 'VARCHAR(50)',
       notNull: true,
     },
     duration: {
@@ -27,12 +27,13 @@ exports.up = (pgm) => {
       type: 'VARCHAR(50)',
     },
     created_at: {
-      type: 'TEXT',
+      type: 'TIMESTAMP',
       notNull: true,
+      default: pgm.func('CURRENT_TIMESTAMP'),
     },
     updated_at: {
-      type: 'TEXT',
-      notNull: true,
+      type: 'TIMESTAMP',
+      default: pgm.func('CURRENT_TIMESTAMP'),
     },
   });
 };
