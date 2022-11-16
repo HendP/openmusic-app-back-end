@@ -12,8 +12,8 @@ class SongsService {
   async addSong({
     title,
     year,
-    genre,
     performer,
+    genre,
     duration = null,
     albumId = null,
   }) {
@@ -27,8 +27,8 @@ class SongsService {
         id,
         title,
         year,
-        genre,
         performer,
+        genre,
         duration,
         albumId,
         createdAt,

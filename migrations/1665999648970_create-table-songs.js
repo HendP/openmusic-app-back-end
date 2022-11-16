@@ -12,21 +12,19 @@ exports.up = (pgm) => {
       type: 'INTEGER',
       notNull: true,
     },
-    genre: {
+    performer: {
       type: 'VARCHAR(50)',
       notNull: true,
     },
-    performer: {
+    genre: {
       type: 'VARCHAR(50)',
       notNull: true,
     },
     duration: {
       type: 'INTEGER',
-      notNull: true,
     },
     album_id: {
       type: 'VARCHAR(50)',
-      notNull: true,
     },
     created_at: {
       type: 'TIMESTAMP',
@@ -35,6 +33,7 @@ exports.up = (pgm) => {
     },
     updated_at: {
       type: 'TIMESTAMP',
+      notNull: true,
       default: pgm.func('CURRENT_TIMESTAMP'),
     },
   });

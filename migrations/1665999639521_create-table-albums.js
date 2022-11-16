@@ -19,6 +19,7 @@ exports.up = (pgm) => {
     },
     updated_at: {
       type: 'TIMESTAMP',
+      notNull: true,
       default: pgm.func('CURRENT_TIMESTAMP'),
     },
   });

@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
+const Jwt = require('@hapi/jwt');
 
 const albums = require('./api/albums');
 const albumsValidator = require('./validator/albums');
@@ -10,11 +11,22 @@ const songs = require('./api/songs');
 const songsValidator = require('./validator/songs');
 const SongsService = require('./services/openmusic/SongsService');
 
+const authentications = require('./api/authentications');
+const authenticationsValidator = require('./validator/authentications');
+const AuthenticationsService = require('./services/openmusic/AuthenticationsService');
+const tokenManager = require('./tokenize/TokenManager');
+
+const users = require('./api/users');
+const usersValidator = require('./validator/users');
+const UsersService = require('./services/openmusic/UsersService');
+
 const ClientError = require('./exceptions/ClientError');
 
 const init = async () => {
   const albumsService = new AlbumsService();
   const songsService = new SongsService();
+  const authenticationsService = new AuthenticationsService();
+  const usersService = new UsersService();
 
   const server = Hapi.server({
     host: process.env.HOST,
@@ -24,6 +36,28 @@ const init = async () => {
         origin: ['*'],
       },
     },
+  });
+
+  await server.register([
+    {
+      plugin: Jwt,
+    },
+  ]);
+
+  server.auth.strategy('openmusic_jwt', 'jwt', {
+    keys: process.env.ACCESS_TOKEN_KEY,
+    verify: {
+      aud: false,
+      iss: false,
+      sub: false,
+      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+    },
+    validate: (artifacts) => ({
+      isValid: true,
+      credentials: {
+        id: artifacts.decoded.payload.id,
+      },
+    }),
   });
 
   await server.register([
@@ -40,6 +74,22 @@ const init = async () => {
       options: {
         SongsService: songsService,
         SongsValidator: songsValidator,
+      },
+    },
+    {
+      plugin: authentications,
+      options: {
+        AuthenticationsService: authenticationsService,
+        UsersService: usersService,
+        TokenManager: tokenManager,
+        AuthenticationsValidator: authenticationsValidator,
+      },
+    },
+    {
+      plugin: users,
+      options: {
+        UsersService: usersService,
+        UsersValidator: usersValidator,
       },
     },
   ]);
@@ -67,7 +117,7 @@ const init = async () => {
       // penanganan server error sesuai kebutuhan
       const newResponse = h.response({
         status: 'error',
-        message: 'terjadi kegagalan pada server kami',
+        message: 'Maaf, terjadi kegagalan pada server kami',
       });
       newResponse.code(500);
       return newResponse;

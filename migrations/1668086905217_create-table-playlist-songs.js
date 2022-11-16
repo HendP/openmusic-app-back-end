@@ -6,11 +6,9 @@ exports.up = (pgm) => {
     },
     playlist_id: {
       type: 'VARCHAR(50)',
-      notNull: true,
     },
     song_id: {
       type: 'VARCHAR(50)',
-      notNull: true,
     }
   });
 

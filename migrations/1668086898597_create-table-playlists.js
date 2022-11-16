@@ -10,7 +10,6 @@ exports.up = (pgm) => {
     },
     owner: {
       type: 'VARCHAR(50)',
-      notNull: true,
     },
     created_at: {
       type: 'TIMESTAMP',
