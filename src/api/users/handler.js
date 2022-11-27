@@ -1,4 +1,4 @@
-class UserHandler {
+class UsersHandler {
   constructor(UsersService, UsersValidator) {
     this._usersService = UsersService;
     this._usersValidator = UsersValidator;
@@ -13,8 +13,6 @@ class UserHandler {
       password,
       fullname,
     });
-
-    console.log(userId);
 
     const response = h.response({
       status: 'success',
@@ -53,4 +51,4 @@ class UserHandler {
   }
 }
 
-module.exports = UserHandler;
+module.exports = UsersHandler;

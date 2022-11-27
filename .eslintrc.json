@@ -16,6 +16,9 @@
         "no-underscore-dangle": "off",
         "object-curly-newline": "off",
         "comma-dangle": "off",
-        "import/no-import-module-exports": "off"
+        "import/no-import-module-exports": "off",
+        "quotes": "off",
+        "object-shorthand": "off",
+        "operator-linebreak": "off"
     }
 }
