@@ -1,16 +1,16 @@
 class AlbumsHandler {
-  constructor(service, validator) {
-    this._service = service;
-    this._validator = validator;
+  constructor(AlbumsService, SongsService, AlbumsValidator) {
+    this._albumsService = AlbumsService;
+    this._songsService = SongsService;
+    this._albumsValidator = AlbumsValidator;
   }
 
   async postAlbumHandler(request, h) {
-    this._validator.validateAlbumsPayload(request.payload);
+    this._albumsValidator.validateAlbumsPayload(request.payload);
 
     const { name, year } = request.payload;
 
-    const albumId = await this._service.addAlbum({ name, year });
-
+    const albumId = await this._albumsService.addAlbum({ name, year });
     const response = h.response({
       status: 'success',
       message: 'Album berhasil ditambahkan',
@@ -24,7 +24,7 @@ class AlbumsHandler {
   }
 
   async getAlbumsHandler() {
-    const albums = await this._service.getAlbums();
+    const albums = await this._albumsService.getAlbums();
 
     return {
       status: 'success',
@@ -37,46 +37,38 @@ class AlbumsHandler {
   async getAlbumByIdHandler(request, h) {
     const { id } = request.params;
 
-    const album = await this._service.getAlbumById(id);
+    const album = await this._albumsService.getAlbumById(id);
+    album.songs = await this._songsService.getSongByAlbumId(id);
 
-    const response = h.response({
+    return h.response({
       status: 'success',
       data: {
         album,
       },
     });
-
-    response.code(200);
-    return response;
   }
 
   async putAlbumByIdHandler(request, h) {
-    this._validator.validateAlbumsPayload(request.payload);
+    this._albumsValidator.validateAlbumsPayload(request.payload);
 
     const { id } = request.params;
-    await this._service.editAlbumById(id, request.payload);
+    await this._albumsService.editAlbumById(id, request.payload);
 
-    const response = h.response({
+    return h.response({
       status: 'success',
       message: 'Album berhasil diperbaharui',
     });
-
-    response.code(200);
-    return response;
   }
 
   async deleteAlbumByIdHandler(request, h) {
     const { id } = request.params;
 
-    await this._service.deleteAlbumById(id);
+    await this._albumsService.deleteAlbumById(id);
 
-    const response = h.response({
+    return h.response({
       status: 'success',
       message: 'Album berhasil dihapus',
     });
-
-    response.code(200);
-    return response;
   }
 }
 

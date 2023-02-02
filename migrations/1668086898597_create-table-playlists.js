@@ -1,5 +1,5 @@
 exports.up = (pgm) => {
-  pgm.createTable('albums', {
+  pgm.createTable('playlists', {
     id: {
       type: 'VARCHAR(50)',
       primaryKey: true,
@@ -8,9 +8,8 @@ exports.up = (pgm) => {
       type: 'VARCHAR(50)',
       notNull: true,
     },
-    year: {
-      type: 'INTEGER',
-      notNull: true,
+    owner: {
+      type: 'VARCHAR(50)',
     },
     created_at: {
       type: 'TIMESTAMP',
@@ -23,8 +22,15 @@ exports.up = (pgm) => {
       default: pgm.func('CURRENT_TIMESTAMP'),
     },
   });
+
+  pgm.addConstraint(
+    'playlists',
+    'fk_playlists.owner',
+    'FOREIGN KEY(owner) REFERENCES users (id) ON DELETE CASCADE',
+  );
 };
 
 exports.down = (pgm) => {
-  pgm.dropTable('albums');
+  pgm.dropConstraint('playlists', 'fk_playlists.owner');
+  pgm.dropTable('playlists');
 };

@@ -3,9 +3,13 @@ const routes = require('./routes');
 
 module.exports = {
   name: 'albums',
-  version: '1.0.0',
-  register: async (server, { service, validator }) => {
-    const albumsHandler = new AlbumsHandler(service, validator);
+  version: '1.0.1',
+  register: async (server, { AlbumsService, SongsService, AlbumsValidator }) => {
+    const albumsHandler = new AlbumsHandler(
+      AlbumsService,
+      SongsService,
+      AlbumsValidator
+    );
     server.route(routes(albumsHandler));
   },
 };

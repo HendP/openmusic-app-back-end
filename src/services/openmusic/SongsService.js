@@ -12,8 +12,8 @@ class SongsService {
   async addSong({
     title,
     year,
-    genre,
     performer,
+    genre,
     duration = null,
     albumId = null,
   }) {
@@ -27,8 +27,8 @@ class SongsService {
         id,
         title,
         year,
-        genre,
         performer,
+        genre,
         duration,
         albumId,
         createdAt,
@@ -53,7 +53,7 @@ class SongsService {
 
     const result = await this._pool.query(query);
 
-    return result.rows;
+    return result.rows.map(mapSongsToModel);
   }
 
   async getSongById(id) {
@@ -71,6 +71,17 @@ class SongsService {
     return result.rows.map(mapSongsToModel)[0];
   }
 
+  async getSongByAlbumId(albumId) {
+    const query = {
+      text: 'SELECT id, title, performer FROM songs WHERE album_id = $1',
+      values: [albumId],
+    };
+
+    const result = await this._pool.query(query);
+
+    return result.rows.map(mapSongsToModel);
+  }
+
   async editSongById(
     id,
     { title, year, performer, genre, duration = null, albumId = null }
@@ -85,7 +96,7 @@ class SongsService {
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
-      throw new NotFoundError('Gagal meperbarui lagu. Id tidak ditemukan');
+      throw new NotFoundError('Gagal memperbarui lagu. Id tidak ditemukan');
     }
   }
 

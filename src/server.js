@@ -1,17 +1,52 @@
 require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
+const Jwt = require('@hapi/jwt');
+
+// albums
 const albums = require('./api/albums');
-const songs = require('./api/songs');
-const AlbumsValidator = require('./validator/albums');
-const SongsValidator = require('./validator/songs');
+const albumsValidator = require('./validator/albums');
 const AlbumsService = require('./services/openmusic/AlbumsService');
+
+// songs
+const songs = require('./api/songs');
+const songsValidator = require('./validator/songs');
 const SongsService = require('./services/openmusic/SongsService');
+
+// authentications
+const authentications = require('./api/authentications');
+const authenticationsValidator = require('./validator/authentications');
+const AuthenticationsService = require('./services/openmusic/AuthenticationsService');
+const tokenManager = require('./tokenize/TokenManager');
+
+// users
+const users = require('./api/users');
+const usersValidator = require('./validator/users');
+const UsersService = require('./services/openmusic/UsersService');
+
+// playlists
+const playlists = require('./api/playlists');
+const playlistsValidator = require('./validator/playlists');
+const PlaylistsService = require('./services/openmusic/PlaylistsService');
+const PlaylistsSongsService = require('./services/openmusic/PlaylistsSongsService');
+const PlaylistsSongsActivitiesService = require('./services/openmusic/PlaylistsSongsActivitiesService');
+
+// collaborations
+const collaborations = require('./api/collaborations');
+const CollaborationsValidator = require('./validator/collaborations');
+const CollaborationsService = require('./services/openmusic/CollaborationsService');
+
 const ClientError = require('./exceptions/ClientError');
 
 const init = async () => {
   const albumsService = new AlbumsService();
   const songsService = new SongsService();
+  const authenticationsService = new AuthenticationsService();
+  const usersService = new UsersService();
+  const collaborationsService = new CollaborationsService();
+  const playlistsService = new PlaylistsService(collaborationsService);
+  const playlistsSongsService = new PlaylistsSongsService();
+  const playlistsSongsActivitiesService = new PlaylistsSongsActivitiesService();
 
   const server = Hapi.server({
     host: process.env.HOST,
@@ -25,17 +60,73 @@ const init = async () => {
 
   await server.register([
     {
+      plugin: Jwt,
+    },
+  ]);
+
+  server.auth.strategy('openmusic_jwt', 'jwt', {
+    keys: process.env.ACCESS_TOKEN_KEY,
+    verify: {
+      aud: false,
+      iss: false,
+      sub: false,
+      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+    },
+    validate: (artifacts) => ({
+      isValid: true,
+      credentials: {
+        id: artifacts.decoded.payload.id,
+      },
+    }),
+  });
+
+  await server.register([
+    {
       plugin: albums,
       options: {
-        service: albumsService,
-        validator: AlbumsValidator,
+        AlbumsService: albumsService,
+        SongsService: songsService,
+        AlbumsValidator: albumsValidator,
       },
     },
     {
       plugin: songs,
       options: {
-        service: songsService,
-        validator: SongsValidator,
+        SongsService: songsService,
+        SongsValidator: songsValidator,
+      },
+    },
+    {
+      plugin: authentications,
+      options: {
+        AuthenticationsService: authenticationsService,
+        UsersService: usersService,
+        TokenManager: tokenManager,
+        AuthenticationsValidator: authenticationsValidator,
+      },
+    },
+    {
+      plugin: users,
+      options: {
+        UsersService: usersService,
+        UsersValidator: usersValidator,
+      },
+    },
+    {
+      plugin: playlists,
+      options: {
+        PlaylistsService: playlistsService,
+        PlaylistsSongsService: playlistsSongsService,
+        PlaylistsSongsActivitiesService: playlistsSongsActivitiesService,
+        PlaylistsValidator: playlistsValidator,
+      },
+    },
+    {
+      plugin: collaborations,
+      options: {
+        CollaborationsService: collaborationsService,
+        PlaylistsService: playlistsService,
+        CollaborationsValidator: CollaborationsValidator,
       },
     },
   ]);
@@ -63,14 +154,14 @@ const init = async () => {
       // penanganan server error sesuai kebutuhan
       const newResponse = h.response({
         status: 'error',
-        message: 'terjadi kegagalan pada server kami',
+        message: 'Maaf, terjadi kegagalan pada server kami',
       });
       newResponse.code(500);
       return newResponse;
     }
 
     // jika bukan error, lanjutkan dengan response sebelumnya (tanpa terintervensi)
-    return response.continue || response;
+    return h.continue;
   });
 
   await server.start();

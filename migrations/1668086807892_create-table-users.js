@@ -1,30 +1,21 @@
 exports.up = (pgm) => {
-  pgm.createTable('songs', {
+  pgm.createTable('users', {
     id: {
       type: 'VARCHAR(50)',
       primaryKey: true,
     },
-    title: {
+    username: {
       type: 'VARCHAR(50)',
+      unique: true,
       notNull: true,
     },
-    year: {
-      type: 'INTEGER',
+    password: {
+      type: 'VARCHAR(100)',
       notNull: true,
     },
-    performer: {
+    fullname: {
       type: 'VARCHAR(50)',
       notNull: true,
-    },
-    genre: {
-      type: 'VARCHAR(50)',
-      notNull: true,
-    },
-    duration: {
-      type: 'INTEGER',
-    },
-    album_id: {
-      type: 'VARCHAR(50)',
     },
     created_at: {
       type: 'TIMESTAMP',
@@ -37,15 +28,8 @@ exports.up = (pgm) => {
       default: pgm.func('CURRENT_TIMESTAMP'),
     },
   });
-
-  pgm.addConstraint(
-    'songs',
-    'fk_songs.album_id',
-    'FOREIGN KEY(album_id) REFERENCES albums(id) ON DELETE CASCADE'
-  );
 };
 
 exports.down = (pgm) => {
-  pgm.dropConstraint('songs', 'fk_songs.album_id');
-  pgm.dropTable('songs');
+  pgm.dropTable('users');
 };
