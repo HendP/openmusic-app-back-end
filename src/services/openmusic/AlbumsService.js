@@ -13,10 +13,11 @@ class AlbumsService {
     const id = `album-${nanoid(16)}`;
     const createdAt = new Date().toISOString();
     const updatedAt = createdAt;
+    const coverUrl = null;
 
     const query = {
-      text: 'INSERT INTO albums VALUES($1, $2, $3, $4, $5) RETURNING id',
-      values: [id, name, year, createdAt, updatedAt],
+      text: 'INSERT INTO albums VALUES($1, $2, $3, $4, $5, $6) RETURNING id',
+      values: [id, name, year, coverUrl, createdAt, updatedAt],
     };
 
     const result = await this._pool.query(query);
@@ -29,7 +30,7 @@ class AlbumsService {
   }
 
   async getAlbums() {
-    const query = 'SELECT id, name, year FROM albums';
+    const query = 'SELECT id, name, year, cover_url FROM albums';
 
     const result = await this._pool.query(query);
 
@@ -38,7 +39,7 @@ class AlbumsService {
 
   async getAlbumById(id) {
     const query = {
-      text: 'SELECT id, name, year FROM albums WHERE id = $1',
+      text: 'SELECT id, name, year, cover_url FROM albums WHERE id = $1',
       values: [id],
     };
 
@@ -77,6 +78,28 @@ class AlbumsService {
     if (!result.rows.length) {
       throw new NotFoundError('Gagal menghapus album, Id tidak ditemukan');
     }
+  }
+
+  async checkAlbum(id) {
+    const query = {
+      text: 'SELECT * FROM albums WHERE id = $1',
+      values: [id],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rows.length) {
+      throw new NotFoundError('Gagal menumukan album');
+    }
+  }
+
+  async editAlbumToAddCoverById(id, fileLocation) {
+    const query = {
+      text: 'UPDATE albums SET cover_url = $1 WHERE id = $2',
+      values: [fileLocation, id],
+    };
+
+    await this._pool.query(query);
   }
 }
 

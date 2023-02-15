@@ -1,8 +1,16 @@
 class AlbumsHandler {
-  constructor(AlbumsService, SongsService, AlbumsValidator) {
+  constructor(
+    AlbumsService,
+    SongsService,
+    AlbumsValidator,
+    StorageService,
+    UploadsValidator
+  ) {
     this._albumsService = AlbumsService;
     this._songsService = SongsService;
     this._albumsValidator = AlbumsValidator;
+    this._storageService = StorageService;
+    this._uploadsValidator = UploadsValidator;
   }
 
   async postAlbumHandler(request, h) {
@@ -69,6 +77,28 @@ class AlbumsHandler {
       status: 'success',
       message: 'Album berhasil dihapus',
     });
+  }
+
+  async postUploadCoverHandler(request, h) {
+    const { id } = request.params;
+    const { cover } = request.payload;
+
+    await this._albumsService.checkAlbum(id);
+
+    this._uploadsValidator.validateImageHeaders(cover.hapi.headers);
+
+    const filename = await this._storageService.writeFile(cover, cover.hapi);
+    const fileLocation = `http://${process.env.HOST}:${process.env.PORT}/albums/covers/${filename}`;
+
+    await this._albumsService.editAlbumToAddCoverById(id, fileLocation);
+
+    const response = h.response({
+      status: 'success',
+      message: 'Cover berhasil diupload',
+    });
+
+    response.code(201);
+    return response;
   }
 }
 
