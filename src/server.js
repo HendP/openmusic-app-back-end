@@ -36,6 +36,11 @@ const collaborations = require('./api/collaborations');
 const CollaborationsValidator = require('./validator/collaborations');
 const CollaborationsService = require('./services/openmusic/CollaborationsService');
 
+// export
+const _exports = require('./api/exports');
+const ProducerService = require('./services/rabbitmq/ProducerService');
+const ExportsValidator = require('./validator/exports');
+
 const ClientError = require('./exceptions/ClientError');
 
 const init = async () => {
@@ -129,12 +134,20 @@ const init = async () => {
         CollaborationsValidator: CollaborationsValidator,
       },
     },
+    {
+      plugin: _exports,
+      options: {
+        ProducerService: ProducerService,
+        PlaylistsService: playlistsService,
+        ExportsValidator: ExportsValidator,
+      }
+    }
   ]);
 
   server.ext('onPreResponse', (request, h) => {
     // mendapatkan konteks response dari request
     const { response } = request;
-
+    console.log(response);
     if (response instanceof Error) {
       // penanganan client error secara internal.
       if (response instanceof ClientError) {
