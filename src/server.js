@@ -2,6 +2,9 @@ require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
+const Inert = require('@hapi/inert');
+const path = require('path');
+const config = require('./utils/config');
 
 // albums
 const albums = require('./api/albums');
@@ -36,10 +39,23 @@ const collaborations = require('./api/collaborations');
 const CollaborationsValidator = require('./validator/collaborations');
 const CollaborationsService = require('./services/openmusic/CollaborationsService');
 
+// export
+const _exports = require('./api/exports');
+const ProducerService = require('./services/rabbitmq/ProducerService');
+const ExportsValidator = require('./validator/exports');
+
+// uploads
+const StorageService = require('./services/storage/StorageService');
+const UploadsValidator = require('./validator/uploads');
+
+// cache
+const CacheService = require('./services/redis/CacheService');
+
 const ClientError = require('./exceptions/ClientError');
 
 const init = async () => {
-  const albumsService = new AlbumsService();
+  const cacheService = new CacheService();
+  const albumsService = new AlbumsService(cacheService);
   const songsService = new SongsService();
   const authenticationsService = new AuthenticationsService();
   const usersService = new UsersService();
@@ -47,10 +63,11 @@ const init = async () => {
   const playlistsService = new PlaylistsService(collaborationsService);
   const playlistsSongsService = new PlaylistsSongsService();
   const playlistsSongsActivitiesService = new PlaylistsSongsActivitiesService();
+  const storageService = new StorageService(path.resolve(__dirname, 'api/albums/file/covers'));
 
   const server = Hapi.server({
-    host: process.env.HOST,
-    port: process.env.PORT,
+    host: config.app.host,
+    port: config.app.port,
     routes: {
       cors: {
         origin: ['*'],
@@ -62,15 +79,18 @@ const init = async () => {
     {
       plugin: Jwt,
     },
+    {
+      plugin: Inert,
+    }
   ]);
 
   server.auth.strategy('openmusic_jwt', 'jwt', {
-    keys: process.env.ACCESS_TOKEN_KEY,
+    keys: config.token.tokenKey,
     verify: {
       aud: false,
       iss: false,
       sub: false,
-      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+      maxAgeSec: config.token.tokenAge,
     },
     validate: (artifacts) => ({
       isValid: true,
@@ -87,6 +107,8 @@ const init = async () => {
         AlbumsService: albumsService,
         SongsService: songsService,
         AlbumsValidator: albumsValidator,
+        StorageService: storageService,
+        UploadsValidator: UploadsValidator
       },
     },
     {
@@ -129,12 +151,20 @@ const init = async () => {
         CollaborationsValidator: CollaborationsValidator,
       },
     },
+    {
+      plugin: _exports,
+      options: {
+        ProducerService: ProducerService,
+        PlaylistsService: playlistsService,
+        ExportsValidator: ExportsValidator,
+      }
+    }
   ]);
 
   server.ext('onPreResponse', (request, h) => {
     // mendapatkan konteks response dari request
     const { response } = request;
-
+    console.log(response);
     if (response instanceof Error) {
       // penanganan client error secara internal.
       if (response instanceof ClientError) {
