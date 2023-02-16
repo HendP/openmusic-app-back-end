@@ -100,6 +100,36 @@ class AlbumsHandler {
     response.code(201);
     return response;
   }
+
+  async postLikesAlbumHandler(request, h) {
+    const { id: credentialId } = request.auth.credentials;
+    const { id } = request.params;
+
+    const message = await this._albumsService.likeAlbum(id, credentialId);
+
+    const response = h.response({
+      status: 'success',
+      message,
+    });
+
+    return response;
+  }
+
+  async getLikesAlbumByIdhandler(request, h) {
+    const { id } = request.params;
+    const { likes, source } = await this._albumsService.getLikesAlbumById(id);
+
+    const response = h.response({
+      status: 'success',
+      data: {
+        likes,
+      },
+    });
+
+    response.header('X-Data-Source', source);
+    // response.code(200);
+    return response;
+  }
 }
 
 module.exports = AlbumsHandler;
