@@ -4,7 +4,7 @@ Repository Submission Kelas [Dicoding Belajar Fundamental Aplikasi Back-End](htt
 
 Silahkan bila tertarik untuk menjadikan repository ini sebagai refrensi 🙂
 
-# Kriteria Submission Akhir (Versi 2)
+# Kriteria Submission (Versi 2)
 - Registrasi dan Autentikasi Pengguna
 - Pengelolaan Data Playlist 
 - Menerapkan Foreign Key
@@ -12,12 +12,12 @@ Silahkan bila tertarik untuk menjadikan repository ini sebagai refrensi 🙂
 - Penanganan Eror (Error Handling)
 - Pertahankan Fitur OpenMusic API versi 1 
 
-# Kriteria Opsional Submission Akhir (Versi 2)
+# Kriteria Opsional Submission (Versi 2)
 - Memiliki fitur kolaborator playlist
 - Memiliki Fitur Playlist Activities
 - Mempertahankan Kriteria Opsional OpenMusic V1
 
-# Saran Submission Akhir (Versi 3)
+# Saran Submission (Versi 2)
 - Meminimalisir boilerplate code pada handler dengan memanfaatkan onPreResponse event extensions
 - Menghindari kesalahan lupa binding dengan arrow function
 
@@ -55,12 +55,6 @@ PGPORT=
 ACCESS_TOKEN_KEY =
 REFRESH_TOKEN_KEY =
 ACCESS_TOKEN_AGE = 
-
-# Message broker
-RABBITMQ_SERVER=
-
-# Redis
-REDIS_SERVER=
 ```
 
 Jalankan proyek ini
