@@ -3,7 +3,7 @@ const Joi = require('joi');
 const currentYear = new Date().getFullYear();
 
 const AlbumsPayloadSchema = Joi.object({
-  name: Joi.string().required(),
+  name: Joi.string().max(50).required(),
   year: Joi.number().integer().min(1990).max(currentYear)
     .required(),
 });

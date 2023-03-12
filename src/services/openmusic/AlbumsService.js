@@ -13,12 +13,11 @@ class AlbumsService {
   async addAlbum({ name, year }) {
     const id = `album-${nanoid(16)}`;
     const createdAt = new Date().toISOString();
-    const updatedAt = createdAt;
     const coverUrl = null;
 
     const query = {
-      text: 'INSERT INTO albums VALUES($1, $2, $3, $4, $5, $6) RETURNING id',
-      values: [id, name, year, coverUrl, createdAt, updatedAt],
+      text: 'INSERT INTO albums VALUES($1, $2, $3, $4, $5, $5) RETURNING id',
+      values: [id, name, year, coverUrl, createdAt],
     };
 
     const result = await this._pool.query(query);
@@ -46,7 +45,7 @@ class AlbumsService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new NotFoundError('Album tidak ditemukan');
     }
 
@@ -63,7 +62,7 @@ class AlbumsService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new NotFoundError('Gagal memperbarui album. Id tidak ditemukan');
     }
   }
@@ -76,7 +75,7 @@ class AlbumsService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new NotFoundError('Gagal menghapus album, Id tidak ditemukan');
     }
   }
@@ -89,7 +88,7 @@ class AlbumsService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new NotFoundError('Gagal menumukan album');
     }
   }
@@ -115,7 +114,7 @@ class AlbumsService {
 
     let responseMessage = '';
 
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       const queryLike = {
         text: 'INSERT INTO user_album_likes (album_id, user_id) VALUES($1, $2) RETURNING id',
         values: [id, userId],
@@ -123,7 +122,7 @@ class AlbumsService {
 
       const resultLike = await this._pool.query(queryLike);
 
-      if (!resultLike.rows.length) {
+      if (!resultLike.rowCount) {
         throw new InvariantError('Gagal menyukai album');
       }
 
@@ -136,7 +135,7 @@ class AlbumsService {
 
       const resultUnlike = await this._pool.query(queryUnlike);
 
-      if (!resultUnlike.rows.length) {
+      if (!resultUnlike.rowCount) {
         throw new InvariantError('Gagal untuk membatalkan menyukai album');
       }
 
@@ -161,7 +160,7 @@ class AlbumsService {
 
       const result = await this._pool.query(query);
 
-      const likes = result.rows.length;
+      const likes = result.rowCount;
 
       await this._cacheService.set(`user_album_likes:${id}`, likes);
 

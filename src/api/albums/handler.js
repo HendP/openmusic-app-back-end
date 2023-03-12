@@ -18,9 +18,7 @@ class AlbumsHandler {
   async postAlbumHandler(request, h) {
     this._albumsValidator.validateAlbumsPayload(request.payload);
 
-    const { name, year } = request.payload;
-
-    const albumId = await this._albumsService.addAlbum({ name, year });
+    const albumId = await this._albumsService.addAlbum(request.payload);
     const response = h.response({
       status: 'success',
       message: 'Album berhasil ditambahkan',
@@ -44,18 +42,18 @@ class AlbumsHandler {
     };
   }
 
-  async getAlbumByIdHandler(request, h) {
+  async getAlbumByIdHandler(request) {
     const { id } = request.params;
 
     const album = await this._albumsService.getAlbumById(id);
     album.songs = await this._songsService.getSongByAlbumId(id);
 
-    return h.response({
+    return {
       status: 'success',
       data: {
         album,
       },
-    });
+    };
   }
 
   async putAlbumByIdHandler(request, h) {
@@ -129,7 +127,6 @@ class AlbumsHandler {
     });
 
     response.header('X-Data-Source', source);
-    // response.code(200);
     return response;
   }
 }

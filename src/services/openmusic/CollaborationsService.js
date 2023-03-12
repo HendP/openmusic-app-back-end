@@ -15,7 +15,7 @@ class CollaborationsService {
     };
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new InvariantError('Kolaborator gagal diverifikasi');
     }
   }
@@ -28,7 +28,7 @@ class CollaborationsService {
 
     const userResult = await this._pool.query(userQuery);
 
-    if (!userResult.rows.length) {
+    if (!userResult.rowCount) {
       throw new NotFoundError('User tidak ditemukan.');
     }
 
@@ -39,7 +39,7 @@ class CollaborationsService {
       values: [id, playlistId, userId],
     };
     const collaborationsResult = await this._pool.query(collaborationsQuery);
-    if (!collaborationsResult.rows.length) {
+    if (!collaborationsResult.rowCount) {
       throw new InvariantError('Kolaborator gagal ditambahkan.');
     }
     return collaborationsResult.rows[0].id;
@@ -53,7 +53,7 @@ class CollaborationsService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new InvariantError('Kolaborator gagal dihapus.');
     }
   }

@@ -12,7 +12,7 @@ class ExportsHandler {
 
     const { id: credentialId } = request.auth.credentials;
     const { playlistId } = request.params;
-    console.log(playlistId);
+
     await this._playlistsService.verifyPlaylistsOwner(playlistId, credentialId);
 
     const message = {
